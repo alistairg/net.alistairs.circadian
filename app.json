@@ -1,0 +1,156 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "net.alistairs.circadian",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Circadian Lighting"
+  },
+  "description": {
+    "en": "Adds support for circadian lighting with dynamic brightness and temperature"
+  },
+  "category": [
+    "lights"
+  ],
+  "permissions": [
+    "homey:manager:geolocation"
+  ],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Alistair Galbraith",
+    "email": "homey@alistairs.net"
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Circadian Zone"
+      },
+      "class": "other",
+      "capabilities": [
+        "circadian_temperature",
+        "circadian_brightness"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [],
+      "images": {
+        "small": "/drivers/circadian-zone/assets/images/small.png",
+        "large": "/drivers/circadian-zone/assets/images/large.png",
+        "xlarge": "/drivers/circadian-zone/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "circadian-zone",
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Colour Temperature"
+          },
+          "children": [
+            {
+              "id": "min_temp",
+              "type": "number",
+              "label": {
+                "en": "Minimum"
+              },
+              "value": 3,
+              "min": 2000,
+              "max": 4000,
+              "units": {
+                "en": "Kelvin"
+              }
+            },
+            {
+              "id": "max_temp",
+              "type": "number",
+              "label": {
+                "en": "Maximum"
+              },
+              "value": 3,
+              "min": 2000,
+              "max": 4000,
+              "units": {
+                "en": "Kelvin"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Brightness"
+          },
+          "children": [
+            {
+              "id": "min_brightness",
+              "type": "number",
+              "label": {
+                "en": "Minimum"
+              },
+              "value": 3,
+              "min": 1,
+              "max": 100,
+              "units": "%"
+            },
+            {
+              "id": "max_brightness",
+              "type": "number",
+              "label": {
+                "en": "Maximum"
+              },
+              "value": 3,
+              "min": 1,
+              "max": 100,
+              "units": "%"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "circadian_brightness": {
+      "type": "number",
+      "title": {
+        "en": "Brightness"
+      },
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/icon.svg",
+      "units": "%"
+    },
+    "circadian_temperature": {
+      "type": "number",
+      "title": {
+        "en": "Colour Temperature"
+      },
+      "uiComponent": "sensor",
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/icon.svg",
+      "units": "K"
+    }
+  }
+}

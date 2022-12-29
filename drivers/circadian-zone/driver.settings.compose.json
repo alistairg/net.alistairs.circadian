@@ -1,0 +1,52 @@
+[{
+    "type": "group",
+    "label": {
+        "en": "Colour Temperature"
+    },
+    "children": [
+        {
+            "id": "min_temp",
+            "type": "number",
+            "label": { "en": "Minimum" },
+            "value": 3,
+            "min": 2000,
+            "max": 4000,
+            "units": { "en": "Kelvin" }
+        },
+        {
+            "id": "max_temp",
+            "type": "number",
+            "label": { "en": "Maximum" },
+            "value": 3,
+            "min": 2000,
+            "max": 4000,
+            "units": { "en": "Kelvin" }
+        }
+    ]
+},
+{
+    "type": "group",
+    "label": {
+        "en": "Brightness"
+    },
+    "children": [
+        {
+            "id": "min_brightness",
+            "type": "number",
+            "label": { "en": "Minimum" },
+            "value": 3,
+            "min": 1,
+            "max": 100,
+            "units": "%"
+        },
+        {
+            "id": "max_brightness",
+            "type": "number",
+            "label": { "en": "Maximum" },
+            "value": 3,
+            "min": 1,
+            "max": 100,
+            "units": "%"
+        }
+    ]
+}]

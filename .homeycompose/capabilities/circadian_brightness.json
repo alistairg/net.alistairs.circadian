@@ -1,0 +1,9 @@
+{
+    "type": "number",
+    "title": { "en": "Brightness" },
+    "uiComponent": "sensor",
+    "getable": true,
+    "setable": false,
+    "icon": "/assets/icon.svg",
+    "units": "%"
+}

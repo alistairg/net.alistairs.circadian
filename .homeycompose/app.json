@@ -1,0 +1,28 @@
+{
+  "id": "net.alistairs.circadian",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Circadian Lighting"
+  },
+  "description": {
+    "en": "Adds support for circadian lighting with dynamic brightness and temperature"
+  },
+  "category": [
+    "lights"
+  ],
+  "permissions": ["homey:manager:geolocation"],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Alistair Galbraith",
+    "email": "homey@alistairs.net"
+  }
+}
