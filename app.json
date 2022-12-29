@@ -74,7 +74,7 @@
               "label": {
                 "en": "Minimum"
               },
-              "value": 3,
+              "value": 2000,
               "min": 2000,
               "max": 4000,
               "units": {
@@ -87,7 +87,7 @@
               "label": {
                 "en": "Maximum"
               },
-              "value": 3,
+              "value": 4000,
               "min": 2000,
               "max": 4000,
               "units": {
@@ -108,7 +108,7 @@
               "label": {
                 "en": "Minimum"
               },
-              "value": 3,
+              "value": 10,
               "min": 1,
               "max": 100,
               "units": "%"
@@ -119,7 +119,7 @@
               "label": {
                 "en": "Maximum"
               },
-              "value": 3,
+              "value": 100,
               "min": 1,
               "max": 100,
               "units": "%"

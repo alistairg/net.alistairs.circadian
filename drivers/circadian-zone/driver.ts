@@ -1,20 +1,45 @@
 import { time } from 'console';
-import Homey from 'homey';
+import Homey, { Device } from 'homey';
 import SunCalc, { GetTimesResult } from 'suncalc';
 
 const { v4: uuidv4 } = require('uuid');
 
-class CircadianDriver extends Homey.Driver {
+export class CircadianDriver extends Homey.Driver {
+
+  private _intervalId: NodeJS.Timer;
+  private _circadianPercentage: number = -1;
 
   /**
    * onInit is called when the driver is initialized.
    */
   async onInit() {
+
+    let _self = this;
     this.log('CircadianDriver has been initialized');
 
-    // Load initial values
-    this._updateCircadianValues();
+    // Trigger an initial update
+    await _self._updateCircadianZones();
+
+    // Schedule Updates
+    this._intervalId = setInterval(function() {
+      _self._updateCircadianZones();
+    }, 1 * 60 * 1000);
+
   }
+
+
+  /**
+   * onUnInit is called when the driver is unintialized
+   */
+  async onUninit(): Promise<void> {
+    
+    this.log("CircadianDriver is shutting down....");
+
+    // Stop the timer
+    clearInterval(this._intervalId);
+
+  }
+
 
   /**
    * onPairListDevices is called when a user is adding a device and the 'list_devices' view is called.
@@ -23,7 +48,7 @@ class CircadianDriver extends Homey.Driver {
   async onPairListDevices() {
     return [
       {
-        name: 'Circadian Tracker',
+        name: this.homey.__("circadian_zone"),
         data: {
           id: uuidv4(),
         },
@@ -33,7 +58,19 @@ class CircadianDriver extends Homey.Driver {
 
 
   /**
-   * _updateCircadianValues recalculates the sunrise and sunset curves, used for calculations in each device
+   * _updateCircadianZones prompts individual zone devices to update based on the master percentage
+   * 
+   */
+
+  async _updateCircadianZones() {
+
+    this.log("Updating circadian zones with recalculated percentage...");
+    this._circadianPercentage = this._recalculateCircadianPercentage();
+
+  }
+
+  /**
+   * _recalculateCircadianPercentage recalculates the sunrise and sunset curves, used for calculations in each device
    * 
    * Inspiration taken in no small part from @claytonjn's Home Assistant circadian lighting algorithm
    * https://github.com/claytonjn/hass-circadian_lighting
@@ -41,7 +78,7 @@ class CircadianDriver extends Homey.Driver {
    * @returns {number} percentage progress through the day
    * 
    */
-  _updateCircadianValues(): number {
+  private _recalculateCircadianPercentage(): number {
 
     // Debug
     this.log("Recalculating...");
@@ -86,13 +123,16 @@ class CircadianDriver extends Homey.Driver {
     y = 0;
     let a: number = (y - k) / (h - x) ** 2;
     let percentage: number = a * (now.getTime()  - h) ** 2 + k;
-    this.log(`h :${h}`);
-    this.log(`k :${k}`);
-    this.log(`x :${x}`);
-    this.log(`a :${x}`);
     this.log(`Percentage: ${percentage}%`);
     return percentage;
 
+  }
+
+  getPercentage(): number {
+    if (this._circadianPercentage == -1) {
+      this._circadianPercentage = this._recalculateCircadianPercentage();
+    }
+    return this._circadianPercentage;
   }
 
 }
