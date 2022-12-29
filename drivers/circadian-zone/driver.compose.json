@@ -5,7 +5,8 @@
   "class": "other",
   "capabilities": [
     "circadian_temperature",
-    "circadian_brightness"
+    "circadian_brightness",
+    "onoff"
   ],
   "platforms": [
     "local"

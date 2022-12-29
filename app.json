@@ -28,6 +28,43 @@
     "name": "Alistair Galbraith",
     "email": "homey@alistairs.net"
   },
+  "bugs": {
+    "url": "https://github.com/alistairg/net.alistairs.circadian/issues"
+  },
+  "source": "https://github.com/alistairg/net.alistairs.circadian",
+  "flow": {
+    "triggers": [
+      {
+        "id": "circadian_changed",
+        "title": {
+          "en": "Circadian values changed"
+        },
+        "tokens": [
+          {
+            "name": "brightness",
+            "type": "number",
+            "title": {
+              "en": "Brightness"
+            }
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Colour Temperature"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=circadian-zone"
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "name": {
@@ -36,7 +73,8 @@
       "class": "other",
       "capabilities": [
         "circadian_temperature",
-        "circadian_brightness"
+        "circadian_brightness",
+        "onoff"
       ],
       "platforms": [
         "local"
