@@ -68,5 +68,38 @@
                 "units": "%"
             }
         ]
+    },
+    {
+        "type": "group",
+        "label": {
+            "en": "Night Mode"
+        },
+        "children": [
+            {
+                "id": "night_brightness",
+                "type": "number",
+                "label": {
+                    "en": "Night Brightness"
+                },
+                "value": 10,
+                "min": 1,
+                "max": 100,
+                "units": "%"
+            },
+            {
+                "id": "night_temp",
+                "type": "number",
+                "label": {
+                    "en": "Night Temperature"
+                },
+                "hint": {
+                    "en": "The coolest colour is 0, the warmest is 100."
+                },
+                "value": 0,
+                "min": 0,
+                "max": 100,
+                "units": "%"
+            }
+        ]
     }
 ]

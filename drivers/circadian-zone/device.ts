@@ -3,60 +3,177 @@ import { CircadianDriver } from './driver'
 
 export class CircadianZone extends Homey.Device {
 
-  private _enabled: boolean = true;
-  private _minTemp: number = 0;
-  private _maxTemp: number = 1;
-  private _minBrightness: number = 0;
-  private _maxBrightness: number = 1;
-  private _currentBrightness: number = 0;
-  private _currentTemperature: number = 0;
+  private _mode: string = "unknown";
+  private _minTemp: number = -1;
+  private _maxTemp: number = -1;
+  private _minBrightness: number = -1;
+  private _maxBrightness: number = -1;
+  private _nightTemperature: number = -1;
+  private _nightBrightness: number = -1;
+  private _currentBrightness: number = -1;
+  private _currentTemperature: number = -1;
+
+
+  /**
+   * return the current mode, getting it if needed
+   */
+  async getMode(): Promise<string> {
+    if (this._mode == "unknown") {
+      this._mode = await this.getCapabilityValue("adaptive_mode");
+    }
+    return this._mode;
+  }
+
+  /**
+   * set the current mode, notifying if appropriate
+   */
+  async setMode(newMode: string) {
+    if (this._mode != newMode) {
+      this._mode = newMode;
+      await this.setCapabilityValue("adaptive_mode", newMode);
+
+      // Trigger changes
+      if ((newMode == "adaptive") || (newMode == "night")) {
+        this.log("Triggering zone update...");
+        await this.refreshZone();
+      }
+      else {
+        this.log(`No changes needed for new mode ${newMode}`);
+      }
+
+    }
+    else {
+      this.log("Mode not changed");
+    }
+  }
+
+  /**
+   * gets the night temperature, reading from settings if needed
+   */
+  async getNightTemperature(): Promise<number> {
+    if (this._nightTemperature == -1) {
+      this._nightTemperature = await this.getSetting("night_temp") / 100.0;
+    }
+    return this._nightTemperature;
+  }
+
+  /**
+   * gets the night brightness, reading from settings if needed
+   */
+  async getNightBrightness(): Promise<number> {
+    if (this._nightBrightness == -1) {
+      this._nightBrightness = await this.getSetting("night_brightness") / 100.0;
+    }
+    return this._nightBrightness;
+  }
+
+  /**
+   * gets the current minimum temperature, reading from settings if needed
+   */
+  async getMinTemperature(): Promise<number> {
+    if (this._minTemp == -1) {
+      this._minTemp = await this.getSetting("min_temp") / 100.0;
+    }
+    return this._minTemp;
+  }
+
+  /**
+   * gets the current maximum temperature, reading from settings if needed
+   */
+  async getMaxTemperature(): Promise<number> {
+    if (this._maxTemp == -1) {
+      this._maxTemp = await this.getSetting("max_temp") / 100.0;
+    }
+    return this._maxTemp;
+  }
+
+  /**
+   * gets the current minimum brightness, reading from settings if needed
+   */
+  async getMinBrightness(): Promise<number> {
+    if (this._minBrightness == -1) {
+      this._minBrightness = await this.getSetting("min_brightness") / 100.0;
+    }
+    return this._minBrightness;
+  }
+
+  /**
+   * gets the current maximum brightness, reading from settings if needed
+   */
+  async getMaxBrightness(): Promise<number> {
+    if (this._maxBrightness == -1) {
+      this._maxBrightness = await this.getSetting("max_brightness") / 100.0;
+    }
+    return this._maxBrightness;
+  }
+
+  /**
+   * gets the current light temperature, reading from capability cache if needed
+   */
+  async getCurrentTemperature(): Promise<Number> {
+    if (this._currentTemperature == -1) {
+      this._currentTemperature = await this.getCapabilityValue("light_temperature");
+    }
+    return this._currentTemperature;
+  }
+
+  /**
+   * sets the current light temperature, changing to manual mode if needed
+   */
+  async overrideCurrentTemperature(newTemperature: number) {
+    if (this._currentTemperature != newTemperature) {
+      this._currentTemperature = newTemperature;
+      const currentMode = await this.getMode();
+      if (currentMode != "manual") {
+        await this.setMode("manual");
+      }
+    }
+  }
+
+  /**
+   * gets the current brightness, reading from capability cache if needed
+   */
+  async getCurrentBrightness(): Promise<Number> {
+    if (this._currentBrightness == -1) {
+      this._currentBrightness = await this.getCapabilityValue("dim");
+    }
+    return this._currentBrightness;
+  }
+
+  /**
+   * sets the current light temperature, changing to manual mode if needed
+   */
+  async overrideCurrentBrightness(newBrightness: number) {
+    if (this._currentBrightness != newBrightness) {
+      this._currentBrightness = newBrightness;
+      const currentMode = await this.getMode();
+      if (currentMode != "manual") {
+        await this.setMode("manual");
+      }
+    }
+  }
 
   /**
    * onInit is called when the device is initialized.
    */
   async onInit() {
 
-    // Cache local settings
-    this._enabled = await this.getCapabilityValue("onoff");
-    const settings = await this.getSettings();
-    this._minTemp = settings.min_temp;
-    this._maxTemp = settings.max_temp;
-    this._minBrightness = settings.min_brightness;
-    this._maxBrightness = settings.max_brightness;
-    this._currentBrightness = await this.getCapabilityValue("dim");
-    this._currentTemperature = await this.getCapabilityValue("light_temperature");
-
-    // Enabled Override Listener
-    this.registerCapabilityListener("onoff", async (value) => {
-      this._enabled = value;
-      if (this._enabled) {
-        this.log("Restoring adaptive settings...");
-        this.updateFromPercentage((this.driver as CircadianDriver).getPercentage());
-      }
-      else {
-        this.log("Adaption disabled.");
-      }
-      
+    // Mode Listener
+    this.registerCapabilityListener("adaptive_mode", async (value) => {
+      this.log(`Mode changed to ${value}`)
+      await this.setMode(value);    
     });
 
     // Temperature Override Listener
     this.registerCapabilityListener("light_temperature", async (value) => {
-      if (this._enabled) {
-        this._enabled = false;
-        this._currentTemperature = value;
-        await this.setCapabilityValue("onoff", false);
-      }
       this.log(`Temperature override to ${value}`);
+      await this.overrideCurrentTemperature(value);
     });
 
     // Dim Override Listener
     this.registerCapabilityListener("dim", async (value) => {
-      if (this._enabled) {
-        this._enabled = false;
-        this._currentBrightness = value;
-        await this.setCapabilityValue("onoff", false);
-      }
       this.log(`Dim override to ${value}`);
+      await this.overrideCurrentBrightness(value);
     });
 
     this.log('CircadianZone has been initialized');
@@ -80,7 +197,6 @@ export class CircadianZone extends Homey.Device {
    */
   async onSettings({ oldSettings: {}, newSettings: {}, changedKeys: [] }): Promise<string|void> {
     this.log(`CircadianZone settings were changed`);
-    this.updateFromPercentage((this.driver as CircadianDriver).getPercentage());
   }
 
   /**
@@ -100,40 +216,72 @@ export class CircadianZone extends Homey.Device {
   }
 
   /**
+   * refreshZone updates the zone values, based on mode and circadian progress
+   */
+  async refreshZone() {
+    const mode = await this.getMode();
+    if (mode == "adaptive") {
+      await this.updateFromPercentage((this.driver as CircadianDriver).getPercentage()); 
+    }
+    else if (mode == "night") {
+      await this.updateFromNightMode();
+    }
+  }
+
+  /**
+   * updateFromNightMode is called when the mode is forcibly set to night mode
+   */
+  private async updateFromNightMode() {
+    const nightBrightness = await this.getNightBrightness();
+    const nightTemperature = await this.getNightTemperature();
+    if ((this._currentBrightness != nightBrightness) || (this._currentTemperature != this._currentTemperature)) {
+      this.log(`Updating to night brightness ${nightBrightness}% and temperature ${nightTemperature}%...`);
+      this._currentBrightness = nightBrightness;
+      this._currentTemperature = nightTemperature;
+      await this.setCapabilityValue("dim", nightBrightness);
+      await this.setCapabilityValue("light_temperature", nightTemperature);
+    }
+    else {
+      this.log("Already at night targets.");
+    }
+  }
+
+  /**
    * updateFromPercentage is called when the global circadian tracking percentage is recalculated
    */
   async updateFromPercentage(percentage: number) {
 
-    if (!this._enabled) {
-      this.log(`${this.getName()} is disabled.`);
+    // Sanity check for adaptive mode
+    if (this._mode != "adaptive") {
+      this.log(`${this.getName()} is not in adaptive mode.`);
       return;
     }
 
     this.log(`${this.getName()} is updating from percentage ${percentage}%...`);
 
     // Brightness
-    const minBrightness: number = (this.getSetting("min_brightness") || 0) / 100.0;
-    const maxBrightness: number = (this.getSetting("max_brightness") || 100) / 100.0;
+    const minBrightness: number = this.getSetting("min_brightness");
+    const maxBrightness: number = this.getSetting("max_brightness");
     const brightnessDelta = maxBrightness - minBrightness;
-    let brightness = (brightnessDelta * (percentage/100)) + minBrightness;
+    let brightness = (brightnessDelta * (percentage/100.0)) + minBrightness;
     if (brightness != this._currentBrightness) {
       this._currentBrightness = brightness;
       await this.setCapabilityValue("dim", brightness);
-      this.log(`Brightness updated to be ${brightness * 100}% in range ${minBrightness * 100}% - ${maxBrightness * 100}%`);
+      this.log(`Brightness updated to be ${brightness * 100.0}% in range ${minBrightness * 100.0}% - ${maxBrightness * 100.0}%`);
     }
     else {
       this.log(`No change in brightness from ${this._currentBrightness}%`)
     }
 
     // Temperature
-    const minTemp: number = (this.getSetting("min_temp") || 0) / 100.0;
-    const maxTemp: number = (this.getSetting("max_temp") || 100) / 100.0;
+    const minTemp: number = this.getSetting("min_temp") / 100.0;
+    const maxTemp: number = this.getSetting("max_temp") / 100.0;
     const tempDelta = maxTemp - minTemp;
-    let temperature = 1 - ((tempDelta * (percentage/100)) + minTemp);
+    let temperature = 1 - ((tempDelta * (percentage/100.0)) + minTemp);
     if (temperature != this._currentTemperature) {
       this._currentTemperature = temperature;
       await this.setCapabilityValue("light_temperature", temperature);
-      this.log(`Temperature updated to be ${temperature * 100}% in range ${minTemp * 100}% - ${maxTemp * 100}%`);
+      this.log(`Temperature updated to be ${temperature * 100.0}% in range ${minTemp * 100.0}% - ${maxTemp * 100.0}%`);
     }
     else {
       this.log(`No change in temperature from ${this._currentTemperature}%`)
