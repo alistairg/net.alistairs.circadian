@@ -1,6 +1,7 @@
 import { time } from 'console';
 import Homey, { Device } from 'homey';
 import SunCalc, { GetTimesResult } from 'suncalc';
+import { CircadianZone } from './device';
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -66,6 +67,9 @@ export class CircadianDriver extends Homey.Driver {
 
     this.log("Updating circadian zones with recalculated percentage...");
     this._circadianPercentage = this._recalculateCircadianPercentage();
+    this.getDevices().forEach(async device => {
+      await (device as CircadianZone).updateFromPercentage(this._circadianPercentage);
+    });
 
   }
 

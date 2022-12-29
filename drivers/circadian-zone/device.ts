@@ -1,7 +1,7 @@
 import Homey from 'homey';
 import { CircadianDriver } from './driver'
 
-class CircadianZone extends Homey.Device {
+export class CircadianZone extends Homey.Device {
 
   /**
    * onInit is called when the device is initialized.
