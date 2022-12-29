@@ -6,7 +6,7 @@
   "capabilities": [
     "light_temperature",
     "dim",
-    "onoff"
+    "adaptive_mode"
   ],
   "platforms": [
     "local"
