@@ -70,10 +70,10 @@
       "name": {
         "en": "Circadian Zone"
       },
-      "class": "other",
+      "class": "light",
       "capabilities": [
-        "circadian_temperature",
-        "circadian_brightness",
+        "light_temperature",
+        "dim",
         "onoff"
       ],
       "platforms": [
@@ -110,26 +110,32 @@
               "id": "min_temp",
               "type": "number",
               "label": {
-                "en": "Minimum"
+                "en": "Minimum Warmth"
               },
-              "value": 2000,
-              "min": 2000,
-              "max": 4000,
+              "value": 0,
+              "min": 0,
+              "max": 100,
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
               "units": {
-                "en": "Kelvin"
+                "en": "%"
               }
             },
             {
               "id": "max_temp",
               "type": "number",
               "label": {
-                "en": "Maximum"
+                "en": "Maximum Warmth"
               },
-              "value": 4000,
-              "min": 2000,
-              "max": 4000,
+              "value": 100,
+              "min": 0,
+              "max": 100,
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
               "units": {
-                "en": "Kelvin"
+                "en": "%"
               }
             }
           ]
@@ -166,29 +172,5 @@
         }
       ]
     }
-  ],
-  "capabilities": {
-    "circadian_brightness": {
-      "type": "number",
-      "title": {
-        "en": "Brightness"
-      },
-      "uiComponent": "sensor",
-      "getable": true,
-      "setable": false,
-      "icon": "/assets/images/circadian_brightness.svg",
-      "units": "%"
-    },
-    "circadian_temperature": {
-      "type": "number",
-      "title": {
-        "en": "Colour Temperature"
-      },
-      "uiComponent": "sensor",
-      "getable": true,
-      "setable": false,
-      "icon": "/assets/images/circadian_temperature.svg",
-      "units": "K"
-    }
-  }
+  ]
 }

@@ -1,9 +1,0 @@
-{
-    "type": "number",
-    "title": { "en": "Colour Temperature" },
-    "uiComponent": "sensor",
-    "getable": true,
-    "setable": false,
-    "icon": "/assets/images/circadian_temperature.svg",
-    "units": "K"
-}
