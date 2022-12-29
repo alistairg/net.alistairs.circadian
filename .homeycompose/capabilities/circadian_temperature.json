@@ -4,6 +4,6 @@
     "uiComponent": "sensor",
     "getable": true,
     "setable": false,
-    "icon": "/assets/icon.svg",
+    "icon": "/assets/images/circadian_temperature.svg",
     "units": "K"
 }
