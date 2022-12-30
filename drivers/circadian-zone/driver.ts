@@ -91,9 +91,12 @@ export class CircadianDriver extends Homey.Driver {
     const latitude: number = this.homey.geolocation.getLatitude();
     const longitude: number = this.homey.geolocation.getLongitude();
     const now = new Date();
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Calculate times
-    var timesToday: GetTimesResult = SunCalc.getTimes(new Date(), latitude, longitude);
+    var timesToday: GetTimesResult = SunCalc.getTimes(now, latitude, longitude);
+    var timesTomorrow: GetTimesResult = SunCalc.getTimes(tomorrow, latitude, longitude);
 
     // Debug
     this.log("Sunrise: " + timesToday.sunrise);
@@ -119,14 +122,14 @@ export class CircadianDriver extends Homey.Driver {
     // ...Sunset to Sunrise
     else {
       this.log("Between sunset and sunrise");
-      h = timesToday.nadir.getTime();
+      h = timesTomorrow.nadir.getTime();
       k = -100;
-      x = (now < timesToday.nadir) ? timesToday.sunset.getTime()  : timesToday.sunrise.getTime() 
+      x = (now < timesTomorrow.nadir) ? timesToday.sunset.getTime() : timesTomorrow.sunrise.getTime(); 
     }
 
     y = 0;
     let a: number = (y - k) / (h - x) ** 2;
-    let percentage: number = a * (now.getTime()  - h) ** 2 + k;
+    let percentage: number = a * (now.getTime() - h) ** 2 + k;
     this.log(`Percentage: ${percentage}%`);
     return percentage;
 

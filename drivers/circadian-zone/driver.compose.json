@@ -2,10 +2,11 @@
   "name": {
     "en": "Circadian Zone"
   },
-  "class": "other",
+  "class": "light",
   "capabilities": [
-    "circadian_temperature",
-    "circadian_brightness"
+    "light_temperature",
+    "dim",
+    "adaptive_mode"
   ],
   "platforms": [
     "local"

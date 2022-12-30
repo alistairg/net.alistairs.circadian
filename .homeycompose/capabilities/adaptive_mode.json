@@ -1,0 +1,32 @@
+{
+    "type": "enum",
+    "title": {
+        "en": "Mode"
+    },
+    "values": [
+        {
+            "id": "adaptive",
+            "title": {
+                "en": "Adaptive"
+            }
+        },
+        {
+            "id": "night",
+            "title": {
+                "en": "Night"
+            }
+        },
+        {
+            "id": "manual",
+            "title": {
+                "en": "Manual"
+            }
+        }
+    ],
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "uiQuickAction": true,
+    "insights": false,
+    "icon": "/assets/images/circadian_brightness.svg"
+}

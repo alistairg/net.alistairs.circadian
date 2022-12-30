@@ -1,0 +1,26 @@
+{
+    "triggers": [
+        {
+            "id": "circadian_changed",
+            "title": {
+                "en": "Circadian values changed"
+            },
+            "tokens": [
+                {
+                    "name": "brightness",
+                    "type": "number",
+                    "title": {
+                        "en": "Brightness"
+                    }
+                },
+                {
+                    "name": "temperature",
+                    "type": "number",
+                    "title": {
+                        "en": "Colour Temperature"
+                    }
+                }
+            ]
+        }
+    ]
+}

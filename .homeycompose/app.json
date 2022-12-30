@@ -25,6 +25,8 @@
     "name": "Alistair Galbraith",
     "email": "homey@alistairs.net"
   },
-  "bugs": "https://github.com/alistairg/net.alistairs.circadian/issues",
+  "bugs": {
+    "url": "https://github.com/alistairg/net.alistairs.circadian/issues"
+  },
   "source": "https://github.com/alistairg/net.alistairs.circadian"
 }

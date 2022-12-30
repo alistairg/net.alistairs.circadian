@@ -28,15 +28,53 @@
     "name": "Alistair Galbraith",
     "email": "homey@alistairs.net"
   },
+  "bugs": {
+    "url": "https://github.com/alistairg/net.alistairs.circadian/issues"
+  },
+  "source": "https://github.com/alistairg/net.alistairs.circadian",
+  "flow": {
+    "triggers": [
+      {
+        "id": "circadian_changed",
+        "title": {
+          "en": "Circadian values changed"
+        },
+        "tokens": [
+          {
+            "name": "brightness",
+            "type": "number",
+            "title": {
+              "en": "Brightness"
+            }
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Colour Temperature"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=circadian-zone"
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "name": {
         "en": "Circadian Zone"
       },
-      "class": "other",
+      "class": "light",
       "capabilities": [
-        "circadian_temperature",
-        "circadian_brightness"
+        "light_temperature",
+        "dim",
+        "adaptive_mode"
       ],
       "platforms": [
         "local"
@@ -72,26 +110,32 @@
               "id": "min_temp",
               "type": "number",
               "label": {
-                "en": "Minimum"
+                "en": "Minimum Warmth"
               },
-              "value": 2000,
-              "min": 2000,
-              "max": 4000,
+              "value": 0,
+              "min": 0,
+              "max": 100,
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
               "units": {
-                "en": "Kelvin"
+                "en": "%"
               }
             },
             {
               "id": "max_temp",
               "type": "number",
               "label": {
-                "en": "Maximum"
+                "en": "Maximum Warmth"
               },
-              "value": 4000,
-              "min": 2000,
-              "max": 4000,
+              "value": 100,
+              "min": 0,
+              "max": 100,
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
               "units": {
-                "en": "Kelvin"
+                "en": "%"
               }
             }
           ]
@@ -125,32 +169,75 @@
               "units": "%"
             }
           ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Night Mode"
+          },
+          "children": [
+            {
+              "id": "night_brightness",
+              "type": "number",
+              "label": {
+                "en": "Night Brightness"
+              },
+              "value": 10,
+              "min": 1,
+              "max": 100,
+              "units": "%"
+            },
+            {
+              "id": "night_temp",
+              "type": "number",
+              "label": {
+                "en": "Night Temperature"
+              },
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
+              "value": 0,
+              "min": 0,
+              "max": 100,
+              "units": "%"
+            }
+          ]
         }
       ]
     }
   ],
   "capabilities": {
-    "circadian_brightness": {
-      "type": "number",
+    "adaptive_mode": {
+      "type": "enum",
       "title": {
-        "en": "Brightness"
+        "en": "Mode"
       },
-      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "adaptive",
+          "title": {
+            "en": "Adaptive"
+          }
+        },
+        {
+          "id": "night",
+          "title": {
+            "en": "Night"
+          }
+        },
+        {
+          "id": "manual",
+          "title": {
+            "en": "Manual"
+          }
+        }
+      ],
       "getable": true,
-      "setable": false,
-      "icon": "/assets/images/circadian_brightness.svg",
-      "units": "%"
-    },
-    "circadian_temperature": {
-      "type": "number",
-      "title": {
-        "en": "Colour Temperature"
-      },
-      "uiComponent": "sensor",
-      "getable": true,
-      "setable": false,
-      "icon": "/assets/images/circadian_temperature.svg",
-      "units": "K"
+      "setable": true,
+      "uiComponent": "picker",
+      "uiQuickAction": true,
+      "insights": false,
+      "icon": "/assets/images/circadian_brightness.svg"
     }
   }
 }
