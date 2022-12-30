@@ -24,7 +24,7 @@ export class CircadianDriver extends Homey.Driver {
     // Schedule Updates
     this._intervalId = setInterval(function() {
       _self._updateCircadianZones();
-    }, 1 * 60 * 1000);
+    }, 3 * 60 * 1000);
 
   }
 
