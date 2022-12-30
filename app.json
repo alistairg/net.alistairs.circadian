@@ -110,7 +110,7 @@
               "id": "noon_temp",
               "type": "number",
               "label": {
-                "en": "Maximum Warmth"
+                "en": "Noon Warmth"
               },
               "value": 60,
               "min": 0,
