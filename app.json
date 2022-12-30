@@ -107,12 +107,12 @@
           },
           "children": [
             {
-              "id": "min_temp",
+              "id": "noon_temp",
               "type": "number",
               "label": {
-                "en": "Minimum Warmth"
+                "en": "Maximum Warmth"
               },
-              "value": 0,
+              "value": 60,
               "min": 0,
               "max": 100,
               "hint": {
@@ -123,12 +123,12 @@
               }
             },
             {
-              "id": "max_temp",
+              "id": "sunset_temp",
               "type": "number",
               "label": {
-                "en": "Maximum Warmth"
+                "en": "Sunset Warmth"
               },
-              "value": 100,
+              "value": 10,
               "min": 0,
               "max": 100,
               "hint": {

@@ -1,7 +1,7 @@
 import { time } from 'console';
 import Homey, { Device } from 'homey';
-import SunCalc, { GetTimesResult } from 'suncalc';
 import { CircadianZone } from './device';
+import { SunEventSolarNoon, SunEventSunrise, SunEventSunset, SunTools} from './suntools';
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -76,8 +76,8 @@ export class CircadianDriver extends Homey.Driver {
   /**
    * _recalculateCircadianPercentage recalculates the sunrise and sunset curves, used for calculations in each device
    * 
-   * Inspiration taken in no small part from @claytonjn's Home Assistant circadian lighting algorithm
-   * https://github.com/claytonjn/hass-circadian_lighting
+   * Inspiration taken in no small part from @basnijholt's excellent Home Assistant adaptive lighting algorithm
+   * https://github.com/basnijholt/adaptive-lighting
    * 
    * @returns {number} percentage progress through the day
    * 
@@ -91,19 +91,20 @@ export class CircadianDriver extends Homey.Driver {
     const latitude: number = this.homey.geolocation.getLatitude();
     const longitude: number = this.homey.geolocation.getLongitude();
     const now = new Date();
-    var tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Calculate times
-    var timesToday: GetTimesResult = SunCalc.getTimes(now, latitude, longitude);
-    var timesTomorrow: GetTimesResult = SunCalc.getTimes(tomorrow, latitude, longitude);
+    let sunTools = new SunTools(now, latitude, longitude);
+    this.log(`SunTools: ${sunTools}`);
+    sunTools.keyEvents.forEach(event => {
+      this.log(`    ${event} Before: ${event.timestamp.getTime() < now.getTime()}`);
+    });
+    let nextEvent = sunTools.getNextEvent(now);
+    let lastEvent = sunTools.getLastEvent(now);
 
     // Debug
-    this.log("Sunrise: " + timesToday.sunrise);
-    this.log("Noon: " + timesToday.solarNoon);
-    this.log("Sunset: " + timesToday.sunset);
-    this.log("Nadir: " + timesToday.nadir);
-    this.log("Now: " + now);
+    this.log(`Now: ${now}`);
+    this.log(`Previously: ${lastEvent}`);
+    this.log(`Next: ${nextEvent}`);
 
     // Calculate the curves
     let h: number;
@@ -111,25 +112,17 @@ export class CircadianDriver extends Homey.Driver {
     let x: number;
     let y: number;
 
-    // Sunrise to Sunset
-    if ((timesToday.sunrise < now) && (now < timesToday.sunset)) {
-      this.log("Between sunrise and sunset");
-      h = timesToday.solarNoon.getTime();
-      k = 100;
-      x = (now < timesToday.solarNoon) ? timesToday.sunrise.getTime()  : timesToday.sunset.getTime();
+    if ((nextEvent instanceof SunEventSunrise) || (nextEvent instanceof SunEventSunset)) {
+      h = lastEvent!.timestamp.getTime();
+      x = nextEvent!.timestamp.getTime();
     }
-
-    // ...Sunset to Sunrise
     else {
-      this.log("Between sunset and sunrise");
-      h = timesTomorrow.nadir.getTime();
-      k = -100;
-      x = (now < timesTomorrow.nadir) ? timesToday.sunset.getTime() : timesTomorrow.sunrise.getTime(); 
+      x = lastEvent!.timestamp.getTime();
+      h = nextEvent!.timestamp.getTime();
     }
+    k = ((nextEvent instanceof SunEventSunset) || (nextEvent instanceof SunEventSolarNoon)) ? 1 : -1;
 
-    y = 0;
-    let a: number = (y - k) / (h - x) ** 2;
-    let percentage: number = a * (now.getTime() - h) ** 2 + k;
+    let percentage = (0 - k) * ((now.getTime() - h) / (h - x)) ** 2 + k;
     this.log(`Percentage: ${percentage}%`);
     return percentage;
 

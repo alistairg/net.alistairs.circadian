@@ -4,8 +4,8 @@ import { CircadianDriver } from './driver'
 export class CircadianZone extends Homey.Device {
 
   private _mode: string = "unknown";
-  private _minTemp: number = -1;
-  private _maxTemp: number = -1;
+  private _sunsetTemp: number = -1;
+  private _noonTemp: number = -1;
   private _minBrightness: number = -1;
   private _maxBrightness: number = -1;
   private _nightTemperature: number = -1;
@@ -18,7 +18,7 @@ export class CircadianZone extends Homey.Device {
    * return the current mode, getting it if needed
    */
   async getMode(): Promise<string> {
-    if (this._mode == "unknown") {
+    if (this._mode === "unknown") {
       this._mode = await this.getCapabilityValue("adaptive_mode");
     }
     return this._mode;
@@ -33,7 +33,7 @@ export class CircadianZone extends Homey.Device {
       await this.setCapabilityValue("adaptive_mode", newMode);
 
       // Trigger changes
-      if ((newMode == "adaptive") || (newMode == "night")) {
+      if ((newMode === "adaptive") || (newMode === "night")) {
         this.log("Triggering zone update...");
         await this.refreshZone();
       }
@@ -68,23 +68,23 @@ export class CircadianZone extends Homey.Device {
   }
 
   /**
-   * gets the current minimum temperature, reading from settings if needed
+   * gets the current sunset temperature, reading from settings if needed
    */
-  async getMinTemperature(): Promise<number> {
-    if (this._minTemp == -1) {
-      this._minTemp = await this.getSetting("min_temp") / 100.0;
+  async getSunsetTemperature(): Promise<number> {
+    if (this._sunsetTemp == -1) {
+      this._sunsetTemp = await this.getSetting("sunset_temp") / 100.0;
     }
-    return this._minTemp;
+    return this._sunsetTemp;
   }
 
   /**
    * gets the current maximum temperature, reading from settings if needed
    */
-  async getMaxTemperature(): Promise<number> {
-    if (this._maxTemp == -1) {
-      this._maxTemp = await this.getSetting("max_temp") / 100.0;
+  async getNoonTemperature(): Promise<number> {
+    if (this._noonTemp == -1) {
+      this._noonTemp = await this.getSetting("noon_temp") / 100.0;
     }
-    return this._maxTemp;
+    return this._noonTemp;
   }
 
   /**
@@ -252,18 +252,18 @@ export class CircadianZone extends Homey.Device {
   async updateFromPercentage(percentage: number) {
 
     // Sanity check for adaptive mode
-    if (this._mode != "adaptive") {
-      this.log(`${this.getName()} is not in adaptive mode.`);
+    if (await this.getMode() != "adaptive") {
+      this.log(`${this.getName()} is not in adaptive mode. (${this._mode})`);
       return;
     }
 
     this.log(`${this.getName()} is updating from percentage ${percentage}%...`);
 
     // Brightness
-    const minBrightness: number = this.getSetting("min_brightness");
-    const maxBrightness: number = this.getSetting("max_brightness");
+    const minBrightness: number = await this.getMinBrightness();
+    const maxBrightness: number = await this.getMaxBrightness();
     const brightnessDelta = maxBrightness - minBrightness;
-    let brightness = (brightnessDelta * (percentage/100.0)) + minBrightness;
+    let brightness = (percentage > 0) ? (brightnessDelta * percentage) + minBrightness : minBrightness;
     if (brightness != this._currentBrightness) {
       this._currentBrightness = brightness;
       await this.setCapabilityValue("dim", brightness);
@@ -274,14 +274,15 @@ export class CircadianZone extends Homey.Device {
     }
 
     // Temperature
-    const minTemp: number = this.getSetting("min_temp") / 100.0;
-    const maxTemp: number = this.getSetting("max_temp") / 100.0;
-    const tempDelta = maxTemp - minTemp;
-    let temperature = 1 - ((tempDelta * (percentage/100.0)) + minTemp);
+    const sunsetTemp: number = await this.getSunsetTemperature();
+    const noonTemp: number = await this.getNoonTemperature();
+    const tempDelta = Math.abs(noonTemp - sunsetTemp);
+    let calculatedTemperature = (tempDelta * percentage) + Math.min(sunsetTemp, noonTemp);
+    let temperature = (percentage > 0) ? calculatedTemperature : sunsetTemp;
     if (temperature != this._currentTemperature) {
       this._currentTemperature = temperature;
       await this.setCapabilityValue("light_temperature", temperature);
-      this.log(`Temperature updated to be ${temperature * 100.0}% in range ${minTemp * 100.0}% - ${maxTemp * 100.0}%`);
+      this.log(`Temperature updated to be ${temperature * 100.0}% in range ${sunsetTemp * 100.0}% - ${noonTemp * 100.0}%`);
     }
     else {
       this.log(`No change in temperature from ${this._currentTemperature}%`)
