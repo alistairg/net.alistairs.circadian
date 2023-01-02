@@ -1,3 +1,4 @@
 {
-    "circadian_zone": "Circadian Zone"
+    "circadian_zone": "Circadian Zone",
+    "temperature_error": "Sunset temperature must be greater than noon temperature"
 }

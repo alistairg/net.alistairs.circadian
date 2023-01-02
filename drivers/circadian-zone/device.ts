@@ -121,7 +121,8 @@ export class CircadianZone extends Homey.Device {
    * sets the current light temperature, changing to manual mode if needed
    */
   async overrideCurrentTemperature(newTemperature: number) {
-    if (this._currentTemperature != newTemperature) {
+    let currentTemperature = await this.getCurrentTemperature();
+    if (currentTemperature != newTemperature) {
       this._currentTemperature = newTemperature;
       const currentMode = await this.getMode();
       if (currentMode != "manual") {
@@ -145,7 +146,8 @@ export class CircadianZone extends Homey.Device {
    * sets the current light temperature, changing to manual mode if needed
    */
   async overrideCurrentBrightness(newBrightness: number) {
-    if (this._currentBrightness != newBrightness) {
+    let currentBrightness = await this.getCurrentBrightness();
+    if (currentBrightness != newBrightness) {
       this._currentBrightness = newBrightness;
       const currentMode = await this.getMode();
       if (currentMode != "manual") {
@@ -198,6 +200,13 @@ export class CircadianZone extends Homey.Device {
    * @returns {Promise<string|void>} return a custom message that will be displayed
    */
   async onSettings(event: { oldSettings: {}, newSettings: {max_brightness: number, min_brightness: number, night_brightness: number, night_temperature: number, sunset_temp: number, noon_temp:number}, changedKeys: [] }): Promise<string|void> {
+    
+    // Sanity check
+    if (!(event.newSettings.sunset_temp > event.newSettings.noon_temp)) {
+      return this.homey.__("temperature_error");
+    }
+    
+    // Update settings
     this.log(`CircadianZone settings were changed - ${JSON.stringify(event.newSettings)}`);
     this._maxBrightness = event.newSettings.max_brightness / 100.0;
     this._minBrightness = event.newSettings.min_brightness / 100.0;
@@ -243,7 +252,9 @@ export class CircadianZone extends Homey.Device {
   private async updateFromNightMode() {
     const nightBrightness = await this.getNightBrightness();
     const nightTemperature = await this.getNightTemperature();
-    if ((this._currentBrightness != nightBrightness) || (this._currentTemperature != this._currentTemperature)) {
+    const currentBrightness = await this.getCurrentBrightness();
+    const currentTemperature = await this.getCurrentTemperature();
+    if ((currentBrightness != nightBrightness) || (currentTemperature != nightTemperature)) {
       this.log(`Updating to night brightness ${nightBrightness}% and temperature ${nightTemperature}%...`);
       this._currentBrightness = nightBrightness;
       this._currentTemperature = nightTemperature;
@@ -265,6 +276,7 @@ export class CircadianZone extends Homey.Device {
   async updateFromPercentage(percentage: number) {
 
     let valuesChanged: boolean = false;
+    let currentBrightness = await this.getCurrentBrightness();
 
     // Sanity check for adaptive mode
     if (await this.getMode() != "adaptive") {
@@ -279,24 +291,25 @@ export class CircadianZone extends Homey.Device {
     const maxBrightness: number = await this.getMaxBrightness();
     const brightnessDelta = maxBrightness - minBrightness;
     let brightness = (percentage > 0) ? (brightnessDelta * percentage) + minBrightness : minBrightness;
-    if (brightness != this._currentBrightness) {
+    if (brightness != currentBrightness) {
       this._currentBrightness = brightness;
       await this.setCapabilityValue("dim", brightness);
       valuesChanged = true;
       this.log(`Brightness updated to be ${brightness * 100.0}% in range ${minBrightness * 100.0}% - ${maxBrightness * 100.0}%`);
     }
     else {
-      this.log(`No change in brightness from ${this._currentBrightness}%`)
+      this.log(`No change in brightness from ${currentBrightness}%`)
     }
 
     // Temperature
     const sunsetTemp: number = await this.getSunsetTemperature();
     const noonTemp: number = await this.getNoonTemperature();
-    const tempDelta = Math.abs(noonTemp - sunsetTemp);
-    let calculatedTemperature = (tempDelta * percentage) + Math.min(sunsetTemp, noonTemp);
+    const tempDelta = sunsetTemp - noonTemp;
+    let calculatedTemperature = (tempDelta * (1-percentage)) + noonTemp; // Temperature gets less as we move to noon
     let temperature = (percentage > 0) ? calculatedTemperature : sunsetTemp;
     if (temperature != this._currentTemperature) {
       this._currentTemperature = temperature;
+      this.log(`Temperature updated to be ${temperature * 100.0}% in range ${sunsetTemp * 100.0}% - ${noonTemp * 100.0}%`);
       await this.setCapabilityValue("light_temperature", temperature);
       valuesChanged = true;
       this.log(`Temperature updated to be ${temperature * 100.0}% in range ${sunsetTemp * 100.0}% - ${noonTemp * 100.0}%`);
