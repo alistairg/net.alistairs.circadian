@@ -11,7 +11,7 @@
                 "label": {
                     "en": "Noon Warmth"
                 },
-                "value": 60,
+                "value": 40,
                 "min": 0,
                 "max": 100,
                 "hint": {
@@ -27,7 +27,7 @@
                 "label": {
                     "en": "Sunset Warmth"
                 },
-                "value": 10,
+                "value": 100,
                 "min": 0,
                 "max": 100,
                 "hint": {

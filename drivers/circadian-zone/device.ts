@@ -127,6 +127,7 @@ export class CircadianZone extends Homey.Device {
       if (currentMode != "manual") {
         await this.setMode("manual");
       }
+      await this.triggerValuesChangedFlow(this._currentBrightness, newTemperature);
     }
   }
 
@@ -150,6 +151,7 @@ export class CircadianZone extends Homey.Device {
       if (currentMode != "manual") {
         await this.setMode("manual");
       }
+      await this.triggerValuesChangedFlow(newBrightness, this._currentTemperature);
     }
   }
 
@@ -247,6 +249,10 @@ export class CircadianZone extends Homey.Device {
       this._currentTemperature = nightTemperature;
       await this.setCapabilityValue("dim", nightBrightness);
       await this.setCapabilityValue("light_temperature", nightTemperature);
+
+      // Trigger flow if appropriate
+      await this.triggerValuesChangedFlow(nightBrightness, nightTemperature);
+
     }
     else {
       this.log("Already at night targets.");
@@ -257,6 +263,8 @@ export class CircadianZone extends Homey.Device {
    * updateFromPercentage is called when the global circadian tracking percentage is recalculated
    */
   async updateFromPercentage(percentage: number) {
+
+    let valuesChanged: boolean = false;
 
     // Sanity check for adaptive mode
     if (await this.getMode() != "adaptive") {
@@ -274,6 +282,7 @@ export class CircadianZone extends Homey.Device {
     if (brightness != this._currentBrightness) {
       this._currentBrightness = brightness;
       await this.setCapabilityValue("dim", brightness);
+      valuesChanged = true;
       this.log(`Brightness updated to be ${brightness * 100.0}% in range ${minBrightness * 100.0}% - ${maxBrightness * 100.0}%`);
     }
     else {
@@ -289,12 +298,26 @@ export class CircadianZone extends Homey.Device {
     if (temperature != this._currentTemperature) {
       this._currentTemperature = temperature;
       await this.setCapabilityValue("light_temperature", temperature);
+      valuesChanged = true;
       this.log(`Temperature updated to be ${temperature * 100.0}% in range ${sunsetTemp * 100.0}% - ${noonTemp * 100.0}%`);
     }
     else {
       this.log(`No change in temperature from ${this._currentTemperature}%`)
     }
 
+    // Trigger flow if appropriate
+    if (valuesChanged) {
+      await this.triggerValuesChangedFlow(brightness, temperature);
+    }
+
+  }
+
+  async triggerValuesChangedFlow(brightness: number, temperature: number) {
+    this.log(`Triggering values changed with temperature ${temperature} and brightness ${brightness}`);
+    return (this.driver as CircadianDriver).triggerValuesChangedFlow(this, {
+      brightness: brightness,
+      temperature: temperature
+    }, {});
   }
 
 }

@@ -9,6 +9,7 @@ export class CircadianDriver extends Homey.Driver {
 
   private _intervalId: NodeJS.Timer;
   private _circadianPercentage: number = -1;
+  private _circadianValuesChangedFlow: Homey.FlowCardTriggerDevice;
 
   /**
    * onInit is called when the driver is initialized.
@@ -16,6 +17,7 @@ export class CircadianDriver extends Homey.Driver {
   async onInit() {
 
     let _self = this;
+    this._circadianValuesChangedFlow = this.homey.flow.getDeviceTriggerCard("circadian_changed");
     this.log('CircadianDriver has been initialized');
 
     // Trigger an initial update
@@ -133,6 +135,13 @@ export class CircadianDriver extends Homey.Driver {
       this._circadianPercentage = this._recalculateCircadianPercentage();
     }
     return this._circadianPercentage;
+  }
+
+  // Handler for an open request
+  triggerValuesChangedFlow(device: Homey.Device, tokens: any, state: any) {
+    this._circadianValuesChangedFlow
+      .trigger(device, tokens, state)
+      .catch(this.error)
   }
 
 }
