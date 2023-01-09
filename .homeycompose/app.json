@@ -10,6 +10,7 @@
   "name": {
     "en": "Circadian Lighting"
   },
+  "homeyCommunityTopicId": 74816,
   "description": {
     "en": "Adds support for circadian lighting with dynamic brightness and temperature"
   },
