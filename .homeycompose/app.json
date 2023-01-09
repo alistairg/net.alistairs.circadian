@@ -1,6 +1,6 @@
 {
   "id": "net.alistairs.circadian",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#b26a00",
@@ -17,7 +17,9 @@
   "category": [
     "lights"
   ],
-  "permissions": ["homey:manager:geolocation"],
+  "permissions": [
+    "homey:manager:geolocation"
+  ],
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",

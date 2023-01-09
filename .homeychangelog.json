@@ -1,5 +1,8 @@
 {
   "1.0.0": {
     "en": "Initial Release"
+  },
+  "1.0.1": {
+    "en": "Added link to Homey Community"
   }
 }
