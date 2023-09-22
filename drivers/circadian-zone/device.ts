@@ -199,7 +199,7 @@ export class CircadianZone extends Homey.Device {
    * @param {string[]} event.changedKeys An array of keys changed since the previous version
    * @returns {Promise<string|void>} return a custom message that will be displayed
    */
-  async onSettings(event: { oldSettings: {}, newSettings: {max_brightness: number, min_brightness: number, night_brightness: number, night_temperature: number, sunset_temp: number, noon_temp:number}, changedKeys: [] }): Promise<string|void> {
+  async onSettings(event: { oldSettings: {}, newSettings: {max_brightness: number, min_brightness: number, night_brightness: number, night_temp: number, sunset_temp: number, noon_temp:number}, changedKeys: [] }): Promise<string|void> {
     
     // Sanity check
     if (!(event.newSettings.sunset_temp > event.newSettings.noon_temp)) {
@@ -213,7 +213,7 @@ export class CircadianZone extends Homey.Device {
     this._noonTemp = event.newSettings.noon_temp / 100.0;
     this._sunsetTemp = event.newSettings.sunset_temp / 100.0;
     this._nightBrightness = event.newSettings.night_brightness / 100.0;
-    this._nightTemperature = event.newSettings.night_temperature / 100.0;
+    this._nightTemperature = event.newSettings.night_temp / 100.0;
     await this.refreshZone();
   }
 
