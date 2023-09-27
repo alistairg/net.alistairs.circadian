@@ -37,6 +37,37 @@
   "flow": {
     "triggers": [
       {
+        "id": "circadian_timing_changed",
+        "title": {
+          "en": "Circadian values changed"
+        },
+        "tokens": [
+          {
+            "name": "brightness",
+            "type": "number",
+            "title": {
+              "en": "Brightness"
+            },
+            "example": 0.9
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Colour Temperature"
+            },
+            "example": 0.5
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=circadian-timing-zone"
+          }
+        ]
+      },
+      {
         "id": "circadian_changed",
         "title": {
           "en": "Circadian values changed"
@@ -70,6 +101,191 @@
     ]
   },
   "drivers": [
+    {
+      "name": {
+        "en": "Circadian Timing Zone"
+      },
+      "class": "light",
+      "capabilities": [
+        "light_temperature",
+        "dim",
+        "adaptive_mode"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [],
+      "images": {
+        "small": "/drivers/circadian-timing-zone/assets/../../circadian-zone/assets/images/small.png",
+        "large": "/drivers/circadian-timing-zone/assets/../../circadian-zone/assets/images/large.png",
+        "xlarge": "/drivers/circadian-timing-zone/assets/../../circadian-zone/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "id": "circadian-timing-zone",
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Colour Temperature"
+          },
+          "children": [
+            {
+              "id": "noon_temp",
+              "type": "number",
+              "label": {
+                "en": "Noon Warmth"
+              },
+              "value": 40,
+              "min": 0,
+              "max": 100,
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
+              "units": {
+                "en": "%"
+              }
+            },
+            {
+              "id": "sunset_temp",
+              "type": "number",
+              "label": {
+                "en": "Sunset Warmth"
+              },
+              "value": 100,
+              "min": 0,
+              "max": 100,
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
+              "units": {
+                "en": "%"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Brightness"
+          },
+          "children": [
+            {
+              "id": "min_brightness",
+              "type": "number",
+              "label": {
+                "en": "Minimum"
+              },
+              "value": 10,
+              "min": 1,
+              "max": 100,
+              "units": "%"
+            },
+            {
+              "id": "max_brightness",
+              "type": "number",
+              "label": {
+                "en": "Maximum"
+              },
+              "value": 100,
+              "min": 1,
+              "max": 100,
+              "units": "%"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Night Mode"
+          },
+          "children": [
+            {
+              "id": "night_brightness",
+              "type": "number",
+              "label": {
+                "en": "Night Brightness"
+              },
+              "value": 10,
+              "min": 1,
+              "max": 100,
+              "units": "%"
+            },
+            {
+              "id": "night_temp",
+              "type": "number",
+              "label": {
+                "en": "Night Temperature"
+              },
+              "hint": {
+                "en": "The coolest colour is 0, the warmest is 100."
+              },
+              "value": 0,
+              "min": 0,
+              "max": 100,
+              "units": "%"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Timing"
+          },
+          "children": [
+            {
+              "id": "fade_duration",
+              "type": "number",
+              "label": {
+                "en": "Fade Duration"
+              },
+              "value": 60,
+              "min": 0,
+              "max": 1440,
+              "units": {
+                "en": "minutes"
+              },
+              "hint": {
+                "en": "If zero, switch will not be gradual, if bigger than switch interval, switch interval will be used"
+              }
+            },
+            {
+              "id": "timing",
+              "type": "textarea",
+              "label": {
+                "en": "Timing JSON"
+              },
+              "value": "",
+              "hint": {
+                "en": "Sorted time key - object JSON (could be empty). Value should be \"circadian\" or number in [0,1] range"
+              }
+            },
+            {
+              "id": "night_timing",
+              "type": "textarea",
+              "label": {
+                "en": "Timing JSON for Night Mode"
+              },
+              "value": "",
+              "hint": {
+                "en": "Sorted time key - object JSON (could be empty). Value should be \"circadian\" or number in [0,1] range"
+              }
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": {
         "en": "Circadian Zone"
