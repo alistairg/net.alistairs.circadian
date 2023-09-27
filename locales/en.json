@@ -1,4 +1,6 @@
 {
     "circadian_zone": "Circadian Zone",
-    "temperature_error": "Sunset temperature must be greater than noon temperature"
+    "circadian_timing_zone": "Circadian Timing Zone",
+    "temperature_error": "Sunset temperature must be greater than noon temperature",
+    "json_timing_error": "JSON non valid or in the wrong structure"
 }
