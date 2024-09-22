@@ -1,28 +1,71 @@
 {
-    "triggers": [
+  "triggers": [
+    {
+      "id": "circadian_changed",
+      "title": {
+        "en": "Circadian values changed"
+      },
+      "tokens": [
         {
-            "id": "circadian_changed",
-            "title": {
-                "en": "Circadian values changed"
-            },
-            "tokens": [
-                {
-                    "name": "brightness",
-                    "type": "number",
-                    "title": {
-                        "en": "Brightness"
-                    },
-                    "example": 0.9
-                },
-                {
-                    "name": "temperature",
-                    "type": "number",
-                    "title": {
-                        "en": "Colour Temperature"
-                    },
-                    "example": 0.5
-                }
-            ]
+          "name": "brightness",
+          "type": "number",
+          "title": {
+            "en": "Brightness"
+          },
+          "example": 0.9
+        },
+        {
+          "name": "temperature",
+          "type": "number",
+          "title": {
+            "en": "Colour Temperature"
+          },
+          "example": 0.5
         }
-    ]
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "set_adaptive_mode",
+      "title": {
+        "en": "Set Mode"
+      },
+      "titleFormatted": {
+        "en": "Set Mode to [[mode]]"
+      },
+      "args": [
+        {
+          "type": "dropdown",
+          "name": "mode",
+          "title": {
+            "en": "Mode"
+          },
+          "values": [
+            {
+              "id": "adaptive",
+              "title": {
+                "en": "Adaptive"
+              }
+            },
+            {
+              "id": "night",
+              "title": {
+                "en": "Night"
+              }
+            },
+            {
+              "id": "manual",
+              "title": {
+                "en": "Manual"
+              }
+            }
+          ]
+        }
+      ],
+      "platforms": [
+        "local"
+      ]
+    }
+  ]
 }

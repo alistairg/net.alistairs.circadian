@@ -1,105 +1,105 @@
 [
-    {
-        "type": "group",
-        "label": {
-            "en": "Colour Temperature"
-        },
-        "children": [
-            {
-                "id": "noon_temp",
-                "type": "number",
-                "label": {
-                    "en": "Noon Warmth"
-                },
-                "value": 40,
-                "min": 0,
-                "max": 100,
-                "hint": {
-                    "en": "The coolest colour is 0, the warmest is 100."
-                },
-                "units": {
-                    "en": "%"
-                }
-            },
-            {
-                "id": "sunset_temp",
-                "type": "number",
-                "label": {
-                    "en": "Sunset Warmth"
-                },
-                "value": 100,
-                "min": 0,
-                "max": 100,
-                "hint": {
-                    "en": "The coolest colour is 0, the warmest is 100."
-                },
-                "units": {
-                    "en": "%"
-                }
-            }
-        ]
+  {
+    "type": "group",
+    "label": {
+      "en": "Colour Temperature"
     },
-    {
-        "type": "group",
+    "children": [
+      {
+        "id": "noon_temp",
+        "type": "number",
         "label": {
-            "en": "Brightness"
+          "en": "Noon Warmth"
         },
-        "children": [
-            {
-                "id": "min_brightness",
-                "type": "number",
-                "label": {
-                    "en": "Minimum"
-                },
-                "value": 10,
-                "min": 1,
-                "max": 100,
-                "units": "%"
-            },
-            {
-                "id": "max_brightness",
-                "type": "number",
-                "label": {
-                    "en": "Maximum"
-                },
-                "value": 100,
-                "min": 1,
-                "max": 100,
-                "units": "%"
-            }
-        ]
+        "value": 40,
+        "min": 0,
+        "max": 100,
+        "hint": {
+          "en": "The coolest colour is 0, the warmest is 100."
+        },
+        "units": {
+          "en": "%"
+        }
+      },
+      {
+        "id": "sunset_temp",
+        "type": "number",
+        "label": {
+          "en": "Sunset Warmth"
+        },
+        "value": 100,
+        "min": 0,
+        "max": 100,
+        "hint": {
+          "en": "The coolest colour is 0, the warmest is 100."
+        },
+        "units": {
+          "en": "%"
+        }
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Brightness"
     },
-    {
-        "type": "group",
+    "children": [
+      {
+        "id": "min_brightness",
+        "type": "number",
         "label": {
-            "en": "Night Mode"
+          "en": "Minimum"
         },
-        "children": [
-            {
-                "id": "night_brightness",
-                "type": "number",
-                "label": {
-                    "en": "Night Brightness"
-                },
-                "value": 10,
-                "min": 1,
-                "max": 100,
-                "units": "%"
-            },
-            {
-                "id": "night_temp",
-                "type": "number",
-                "label": {
-                    "en": "Night Temperature"
-                },
-                "hint": {
-                    "en": "The coolest colour is 0, the warmest is 100."
-                },
-                "value": 0,
-                "min": 0,
-                "max": 100,
-                "units": "%"
-            }
-        ]
-    }
+        "value": 10,
+        "min": 1,
+        "max": 100,
+        "units": "%"
+      },
+      {
+        "id": "max_brightness",
+        "type": "number",
+        "label": {
+          "en": "Maximum"
+        },
+        "value": 100,
+        "min": 1,
+        "max": 100,
+        "units": "%"
+      }
+    ]
+  },
+  {
+    "type": "group",
+    "label": {
+      "en": "Night Mode"
+    },
+    "children": [
+      {
+        "id": "night_brightness",
+        "type": "number",
+        "label": {
+          "en": "Night Brightness"
+        },
+        "value": 10,
+        "min": 1,
+        "max": 100,
+        "units": "%"
+      },
+      {
+        "id": "night_temp",
+        "type": "number",
+        "label": {
+          "en": "Night Temperature"
+        },
+        "hint": {
+          "en": "The coolest colour is 0, the warmest is 100."
+        },
+        "value": 0,
+        "min": 0,
+        "max": 100,
+        "units": "%"
+      }
+    ]
+  }
 ]
