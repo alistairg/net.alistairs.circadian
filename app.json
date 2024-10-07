@@ -67,6 +67,54 @@
           }
         ]
       }
+    ],
+    "actions": [
+      {
+        "id": "set_adaptive_mode",
+        "title": {
+          "en": "Set Mode"
+        },
+        "titleFormatted": {
+          "en": "Set Mode to [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=circadian-zone"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "title": {
+              "en": "Mode"
+            },
+            "values": [
+              {
+                "id": "adaptive",
+                "title": {
+                  "en": "Adaptive"
+                }
+              },
+              {
+                "id": "night",
+                "title": {
+                  "en": "Night"
+                }
+              },
+              {
+                "id": "manual",
+                "title": {
+                  "en": "Manual"
+                }
+              }
+            ]
+          }
+        ],
+        "platforms": [
+          "local"
+        ]
+      }
     ]
   },
   "drivers": [

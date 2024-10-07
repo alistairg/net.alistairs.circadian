@@ -20,6 +20,11 @@ export class CircadianDriver extends Homey.Driver {
     this._circadianValuesChangedFlow = this.homey.flow.getDeviceTriggerCard("circadian_changed");
     this.log('CircadianDriver has been initialized');
 
+    this.homey.flow.getActionCard("set_adaptive_mode")
+    .registerRunListener(async (args) => {
+      return await args.device.triggerCapabilityListener('adaptive_mode', args.mode);
+    })
+
     // Trigger an initial update
     await _self._updateCircadianZones();
 
