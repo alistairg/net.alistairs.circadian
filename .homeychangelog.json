@@ -4,5 +4,8 @@
   },
   "1.0.1": {
     "en": "Added link to Homey Community"
+  },
+  "1.1.0": {
+    "en": "Support for changing modes via flow (thanks @makleso6)"
   }
 }
