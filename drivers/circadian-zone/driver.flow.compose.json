@@ -40,24 +40,28 @@
           "name": "mode",
           "title": {
             "en": "Mode"
+            "de": "Modus"
           },
           "values": [
             {
               "id": "adaptive",
               "title": {
                 "en": "Adaptive"
+                "de": "Adaptiv"
               }
             },
             {
               "id": "night",
               "title": {
                 "en": "Night"
+                "de": "Nacht"
               }
             },
             {
               "id": "manual",
               "title": {
                 "en": "Manual"
+                "de": "Manuell"
               }
             }
           ]
