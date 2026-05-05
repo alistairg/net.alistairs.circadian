@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest a new feature or improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Many feature requests close as "not planned, but PRs welcome." That's not a brush-off — it's an invitation.
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behaviour
+      description: What does the app do today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: desired
+    attributes:
+      label: Desired behaviour
+      description: What should it do instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why does this matter?
+      description: What real automation or real workflow does this enable that's blocked today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation hints (optional)
+      description: If you've poked around the code, where would the change land?

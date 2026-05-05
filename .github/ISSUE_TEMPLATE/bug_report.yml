@@ -1,0 +1,51 @@
+name: Bug report
+description: Report something that's broken
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please redact credentials, IPs, MAC addresses, and any home-identifying info from any logs you paste.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What were you trying to do, what did you expect, and what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: From a known-good state, the exact sequence of actions that triggers the bug.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      placeholder: 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: homey-version
+    attributes:
+      label: Homey model and firmware version
+      placeholder: Homey Pro (Early 2023), 12.2.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Output from `homey app run` or the Homey app log viewer. **Redact anything sensitive.**
+      render: shell
