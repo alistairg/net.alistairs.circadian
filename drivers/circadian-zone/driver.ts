@@ -9,7 +9,7 @@ export class CircadianDriver extends Homey.Driver {
 
   private _intervalId: NodeJS.Timer;
   private _circadianPercentage: number = -1;
-  private _circadianValuesChangedFlow: Homey.FlowCardTriggerDevice;
+  protected _circadianValuesChangedFlow: Homey.FlowCardTriggerDevice;
 
   /**
    * onInit is called when the driver is initialized.
@@ -89,7 +89,7 @@ export class CircadianDriver extends Homey.Driver {
    * @returns {number} percentage progress through the day
    * 
    */
-  private _recalculateCircadianPercentage(): number {
+  private _recalculateCircadianPercentage(date?: Date): number {
 
     // Debug
     this.log("Recalculating...");
@@ -97,7 +97,7 @@ export class CircadianDriver extends Homey.Driver {
     // Get location
     const latitude: number = this.homey.geolocation.getLatitude();
     const longitude: number = this.homey.geolocation.getLongitude();
-    const now = new Date();
+    const now = date || new Date();
 
     // Calculate times
     let sunTools = new SunTools(now, latitude, longitude);
@@ -140,6 +140,10 @@ export class CircadianDriver extends Homey.Driver {
       this._circadianPercentage = this._recalculateCircadianPercentage();
     }
     return this._circadianPercentage;
+  }
+
+  getPercentageForDate(date:Date): number {
+    return this._recalculateCircadianPercentage(date);
   }
 
   // Handler for an open request

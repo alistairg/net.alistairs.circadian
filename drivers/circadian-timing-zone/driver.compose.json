@@ -1,0 +1,31 @@
+{
+  "name": {
+    "en": "Circadian Timing Zone"
+  },
+  "class": "light",
+  "capabilities": [
+    "light_temperature",
+    "dim",
+    "adaptive_mode"
+  ],
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [],
+  "images": {
+    "small": "{{driverAssetsPath}}/../../circadian-zone/assets/images/small.png",
+    "large": "{{driverAssetsPath}}/../../circadian-zone/assets/images/large.png",
+    "xlarge": "{{driverAssetsPath}}/../../circadian-zone/assets/images/xlarge.png"
+  },
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ]
+}
