@@ -1,6 +1,7 @@
 {
   "name": {
-    "en": "Circadian Zone"
+    "en": "Circadian Zone",
+    "de": "Circadian-Zone"
   },
   "class": "light",
   "capabilities": [

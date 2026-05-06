@@ -8,11 +8,13 @@
     "local"
   ],
   "name": {
-    "en": "Circadian Lighting"
+    "en": "Circadian Lighting",
+    "de": "Circadiane Beleuchtung"
   },
   "homeyCommunityTopicId": 74816,
   "description": {
-    "en": "Adds support for circadian lighting with dynamic brightness and temperature"
+    "en": "Adds support for circadian lighting with dynamic brightness and temperature",
+    "de": "Steuert circadiane Beleuchtung mit dynamischer Helligkeit und Farbtemperatur"
   },
   "category": [
     "lights"

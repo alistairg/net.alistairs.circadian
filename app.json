@@ -9,11 +9,13 @@
     "local"
   ],
   "name": {
-    "en": "Circadian Lighting"
+    "en": "Circadian Lighting",
+    "de": "Circadiane Beleuchtung"
   },
   "homeyCommunityTopicId": 74816,
   "description": {
-    "en": "Adds support for circadian lighting with dynamic brightness and temperature"
+    "en": "Adds support for circadian lighting with dynamic brightness and temperature",
+    "de": "Steuert circadiane Beleuchtung mit dynamischer Helligkeit und Farbtemperatur"
   },
   "category": [
     "lights"
@@ -39,14 +41,16 @@
       {
         "id": "circadian_changed",
         "title": {
-          "en": "Circadian values changed"
+          "en": "Circadian values changed",
+          "de": "Circadian-Werte geändert"
         },
         "tokens": [
           {
             "name": "brightness",
             "type": "number",
             "title": {
-              "en": "Brightness"
+              "en": "Brightness",
+              "de": "Helligkeit"
             },
             "example": 0.9
           },
@@ -54,7 +58,8 @@
             "name": "temperature",
             "type": "number",
             "title": {
-              "en": "Colour Temperature"
+              "en": "Colour Temperature",
+              "de": "Farbtemperatur"
             },
             "example": 0.5
           }
@@ -72,10 +77,12 @@
       {
         "id": "set_adaptive_mode",
         "title": {
-          "en": "Set Mode"
+          "en": "Set Mode",
+          "de": "Modus festlegen"
         },
         "titleFormatted": {
-          "en": "Set Mode to [[mode]]"
+          "en": "Set Mode to [[mode]]",
+          "de": "Modus auf [[mode]] festlegen"
         },
         "args": [
           {
@@ -87,25 +94,29 @@
             "type": "dropdown",
             "name": "mode",
             "title": {
-              "en": "Mode"
+              "en": "Mode",
+              "de": "Modus"
             },
             "values": [
               {
                 "id": "adaptive",
                 "title": {
-                  "en": "Adaptive"
+                  "en": "Adaptive",
+                  "de": "Adaptiv"
                 }
               },
               {
                 "id": "night",
                 "title": {
-                  "en": "Night"
+                  "en": "Night",
+                  "de": "Nacht"
                 }
               },
               {
                 "id": "manual",
                 "title": {
-                  "en": "Manual"
+                  "en": "Manual",
+                  "de": "Manuell"
                 }
               }
             ]
@@ -120,7 +131,8 @@
   "drivers": [
     {
       "name": {
-        "en": "Circadian Zone"
+        "en": "Circadian Zone",
+        "de": "Circadian-Zone"
       },
       "class": "light",
       "capabilities": [
@@ -155,20 +167,23 @@
         {
           "type": "group",
           "label": {
-            "en": "Colour Temperature"
+            "en": "Colour Temperature",
+            "de": "Farbtemperatur"
           },
           "children": [
             {
               "id": "noon_temp",
               "type": "number",
               "label": {
-                "en": "Noon Warmth"
+                "en": "Noon Warmth",
+                "de": "Mittagswärme"
               },
               "value": 40,
               "min": 0,
               "max": 100,
               "hint": {
-                "en": "The coolest colour is 0, the warmest is 100."
+                "en": "The coolest colour is 0, the warmest is 100.",
+                "de": "Die kühlste Farbe ist 0, die wärmste ist 100."
               },
               "units": {
                 "en": "%"
@@ -178,13 +193,15 @@
               "id": "sunset_temp",
               "type": "number",
               "label": {
-                "en": "Sunset Warmth"
+                "en": "Sunset Warmth",
+                "de": "Sonnenuntergangswärme"
               },
               "value": 100,
               "min": 0,
               "max": 100,
               "hint": {
-                "en": "The coolest colour is 0, the warmest is 100."
+                "en": "The coolest colour is 0, the warmest is 100.",
+                "de": "Die kühlste Farbe ist 0, die wärmste ist 100."
               },
               "units": {
                 "en": "%"
@@ -195,14 +212,16 @@
         {
           "type": "group",
           "label": {
-            "en": "Brightness"
+            "en": "Brightness",
+            "de": "Helligkeit"
           },
           "children": [
             {
               "id": "min_brightness",
               "type": "number",
               "label": {
-                "en": "Minimum"
+                "en": "Minimum",
+                "de": "Minimum"
               },
               "value": 10,
               "min": 1,
@@ -213,7 +232,8 @@
               "id": "max_brightness",
               "type": "number",
               "label": {
-                "en": "Maximum"
+                "en": "Maximum",
+                "de": "Maximum"
               },
               "value": 100,
               "min": 1,
@@ -225,14 +245,16 @@
         {
           "type": "group",
           "label": {
-            "en": "Night Mode"
+            "en": "Night Mode",
+            "de": "Nachtmodus"
           },
           "children": [
             {
               "id": "night_brightness",
               "type": "number",
               "label": {
-                "en": "Night Brightness"
+                "en": "Night Brightness",
+                "de": "Nachthelligkeit"
               },
               "value": 10,
               "min": 1,
@@ -243,10 +265,12 @@
               "id": "night_temp",
               "type": "number",
               "label": {
-                "en": "Night Temperature"
+                "en": "Night Temperature",
+                "de": "Nachttemperatur"
               },
               "hint": {
-                "en": "The coolest colour is 0, the warmest is 100."
+                "en": "The coolest colour is 0, the warmest is 100.",
+                "de": "Die kühlste Farbe ist 0, die wärmste ist 100."
               },
               "value": 0,
               "min": 0,
@@ -262,25 +286,29 @@
     "adaptive_mode": {
       "type": "enum",
       "title": {
-        "en": "Mode"
+        "en": "Mode",
+        "de": "Modus"
       },
       "values": [
         {
           "id": "adaptive",
           "title": {
-            "en": "Adaptive"
+            "en": "Adaptive",
+            "de": "Adaptiv"
           }
         },
         {
           "id": "night",
           "title": {
-            "en": "Night"
+            "en": "Night",
+            "de": "Nacht"
           }
         },
         {
           "id": "manual",
           "title": {
-            "en": "Manual"
+            "en": "Manual",
+            "de": "Manuell"
           }
         }
       ],
