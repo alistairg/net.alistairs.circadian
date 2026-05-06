@@ -4,5 +4,15 @@
     "allowJs": true,
     "outDir": ".homeybuild/",
     "strictPropertyInitialization": false
-  }
+  },
+  "include": [
+    "app.ts",
+    "lib/**/*.ts",
+    "drivers/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".homeybuild",
+    "test"
+  ]
 }
