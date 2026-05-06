@@ -1,7 +1,7 @@
 import Homey from 'homey';
 import { v4 as uuidv4 } from 'uuid';
 import { CircadianZone } from './device';
-import { SunEventSolarNoon, SunEventSunrise, SunEventSunset, SunTools } from './suntools';
+import { calculateCircadianPercentage } from '../../lib/circadian';
 
 const RECALC_INTERVAL_MS = 3 * 60 * 1000;
 // Sentinel for "percentage not yet computed". Real percentages are in [-1, 1]
@@ -83,53 +83,16 @@ export class CircadianDriver extends Homey.Driver {
   }
 
   /**
-   * Recalculate the sunrise/sunset curve and return the current
-   * percentage progress through the day.
-   *
-   * Inspiration from @basnijholt's adaptive-lighting algorithm for HA:
-   * https://github.com/basnijholt/adaptive-lighting
+   * Thin wrapper over {@link calculateCircadianPercentage} that pulls the
+   * current location from Homey and adds logging. The pure math lives
+   * in lib/circadian.ts so it can be unit-tested without the Homey SDK.
    */
   private _recalculateCircadianPercentage(): number {
-    this.log('Recalculating...');
-
     const latitude = this.homey.geolocation.getLatitude();
     const longitude = this.homey.geolocation.getLongitude();
     const now = new Date();
-
-    const sunTools = new SunTools(now, latitude, longitude);
-    this.log(`SunTools: ${sunTools}`);
-
-    const nextEvent = sunTools.getNextEvent(now);
-    const lastEvent = sunTools.getLastEvent(now);
-    if (!nextEvent || !lastEvent) {
-      this.log('No bracketing sun events; defaulting to 0%');
-      return 0;
-    }
-
-    this.log(`Now: ${now.toISOString()}`);
-    this.log(`Previously: ${lastEvent}`);
-    this.log(`Next: ${nextEvent}`);
-
-    // Curve construction:
-    //   - Between sunrise and noon (and between sunset and midnight) we're
-    //     climbing/descending; the next event is the inflection.
-    //   - Between noon and sunset (and between midnight and sunrise) we're
-    //     mirrored; the previous event is the inflection.
-    //   - k flips the curve sign based on whether we're heading toward a
-    //     "high" event (sunset/noon, k=1) or "low" event (midnight/sunrise, k=-1).
-    let h: number;
-    let x: number;
-    if (nextEvent instanceof SunEventSunrise || nextEvent instanceof SunEventSunset) {
-      h = lastEvent.timestamp.getTime();
-      x = nextEvent.timestamp.getTime();
-    } else {
-      x = lastEvent.timestamp.getTime();
-      h = nextEvent.timestamp.getTime();
-    }
-    const k = (nextEvent instanceof SunEventSunset || nextEvent instanceof SunEventSolarNoon) ? 1 : -1;
-
-    const percentage = (0 - k) * ((now.getTime() - h) / (h - x)) ** 2 + k;
-    this.log(`Percentage: ${percentage}`);
+    const percentage = calculateCircadianPercentage(now, latitude, longitude);
+    this.log(`Recalculated percentage at ${now.toISOString()}: ${percentage}`);
     return percentage;
   }
 

@@ -1,11 +1,10 @@
 import Homey from 'homey';
 import { CircadianDriver } from './driver';
-
-// Treat capability values as equal if they're within this much of each
-// other. Without this, repeated polls would write through any tiny
-// floating-point drift, causing redundant capability writes (and therefore
-// redundant downstream flow events).
-const FLOAT_EPSILON = 0.005;
+import {
+  approximatelyEqual,
+  brightnessForPercentage,
+  temperatureForPercentage,
+} from '../../lib/circadian';
 
 interface SettingsValues {
   max_brightness: number;
@@ -241,49 +240,36 @@ export class CircadianZone extends Homey.Device {
       return;
     }
 
-    this.log(`${this.getName()} is updating from percentage ${percentage}%...`);
+    this.log(`${this.getName()} is updating from percentage ${percentage}`);
 
     let valuesChanged = false;
-    let brightness: number;
-    let temperature: number;
 
     // Brightness
-    {
-      const minBrightness = this.getMinBrightness();
-      const maxBrightness = this.getMaxBrightness();
-      const brightnessDelta = maxBrightness - minBrightness;
-      brightness = (percentage > 0)
-        ? (brightnessDelta * percentage) + minBrightness
-        : minBrightness;
-
-      const currentBrightness = this.getCurrentBrightness();
-      if (!approximatelyEqual(brightness, currentBrightness)) {
-        this._currentBrightness = brightness;
-        await this.setCapabilityValue('dim', brightness);
-        valuesChanged = true;
-        this.log(`Brightness updated to be ${brightness * 100.0}% in range ${minBrightness * 100.0}% - ${maxBrightness * 100.0}%`);
-      } else {
-        this.log(`No change in brightness from ${currentBrightness}%`);
-      }
+    const minBrightness = this.getMinBrightness();
+    const maxBrightness = this.getMaxBrightness();
+    const brightness = brightnessForPercentage(percentage, minBrightness, maxBrightness);
+    const currentBrightness = this.getCurrentBrightness();
+    if (!approximatelyEqual(brightness, currentBrightness)) {
+      this._currentBrightness = brightness;
+      await this.setCapabilityValue('dim', brightness);
+      valuesChanged = true;
+      this.log(`Brightness updated to ${brightness} in range ${minBrightness}-${maxBrightness}`);
+    } else {
+      this.log(`No change in brightness from ${currentBrightness}`);
     }
 
     // Temperature
-    {
-      const sunsetTemp = this.getSunsetTemperature();
-      const noonTemp = this.getNoonTemperature();
-      const tempDelta = sunsetTemp - noonTemp;
-      const calculatedTemperature = (tempDelta * (1 - percentage)) + noonTemp; // gets less as we move to noon
-      temperature = (percentage > 0) ? calculatedTemperature : sunsetTemp;
-
-      const currentTemperature = this.getCurrentTemperature();
-      if (!approximatelyEqual(temperature, currentTemperature)) {
-        this._currentTemperature = temperature;
-        await this.setCapabilityValue('light_temperature', temperature);
-        valuesChanged = true;
-        this.log(`Temperature updated to be ${temperature * 100.0}% in range ${sunsetTemp * 100.0}% - ${noonTemp * 100.0}%`);
-      } else {
-        this.log(`No change in temperature from ${currentTemperature}%`);
-      }
+    const sunsetTemp = this.getSunsetTemperature();
+    const noonTemp = this.getNoonTemperature();
+    const temperature = temperatureForPercentage(percentage, noonTemp, sunsetTemp);
+    const currentTemperature = this.getCurrentTemperature();
+    if (!approximatelyEqual(temperature, currentTemperature)) {
+      this._currentTemperature = temperature;
+      await this.setCapabilityValue('light_temperature', temperature);
+      valuesChanged = true;
+      this.log(`Temperature updated to ${temperature} in range ${noonTemp}-${sunsetTemp}`);
+    } else {
+      this.log(`No change in temperature from ${currentTemperature}`);
     }
 
     if (valuesChanged) {
@@ -299,10 +285,6 @@ export class CircadianZone extends Homey.Device {
     }, {});
   }
 
-}
-
-function approximatelyEqual(a: number, b: number): boolean {
-  return Math.abs(a - b) < FLOAT_EPSILON;
 }
 
 module.exports = CircadianZone;
