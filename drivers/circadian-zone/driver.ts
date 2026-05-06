@@ -1,62 +1,57 @@
-import { time } from 'console';
-import Homey, { Device } from 'homey';
+import Homey from 'homey';
+import { v4 as uuidv4 } from 'uuid';
 import { CircadianZone } from './device';
-import { SunEventSolarNoon, SunEventSunrise, SunEventSunset, SunTools} from './suntools';
+import { SunEventSolarNoon, SunEventSunrise, SunEventSunset, SunTools } from './suntools';
 
-const { v4: uuidv4 } = require('uuid');
+const RECALC_INTERVAL_MS = 3 * 60 * 1000;
+// Sentinel for "percentage not yet computed". Real percentages are in [-1, 1]
+// (the curve formula can return any value in that range), so we can't reuse
+// -1 as a sentinel — null distinguishes cleanly.
+type Percentage = number | null;
 
 export class CircadianDriver extends Homey.Driver {
 
-  private _intervalId: NodeJS.Timer;
-  private _circadianPercentage: number = -1;
-  private _circadianValuesChangedFlow: Homey.FlowCardTriggerDevice;
+  private _intervalId: NodeJS.Timeout | null = null;
+  private _circadianPercentage: Percentage = null;
+  private _circadianValuesChangedFlow!: Homey.FlowCardTriggerDevice;
 
   /**
    * onInit is called when the driver is initialized.
    */
   async onInit() {
+    await super.onInit();
 
-    let _self = this;
-    this._circadianValuesChangedFlow = this.homey.flow.getDeviceTriggerCard("circadian_changed");
+    this._circadianValuesChangedFlow = this.homey.flow.getDeviceTriggerCard('circadian_changed');
     this.log('CircadianDriver has been initialized');
 
-    this.homey.flow.getActionCard("set_adaptive_mode")
-    .registerRunListener(async (args) => {
-      return await args.device.triggerCapabilityListener('adaptive_mode', args.mode);
-    })
+    this.homey.flow
+      .getActionCard('set_adaptive_mode')
+      .registerRunListener(async (args) => args.device.triggerCapabilityListener('adaptive_mode', args.mode));
 
-    // Trigger an initial update
-    await _self._updateCircadianZones();
+    // Trigger an initial update before the interval kicks in
+    await this._updateCircadianZones();
 
-    // Schedule Updates
-    this._intervalId = setInterval(function() {
-      _self._updateCircadianZones();
-    }, 3 * 60 * 1000);
-
+    // Schedule periodic recalculation
+    this._intervalId = this.homey.setInterval(
+      () => this._updateCircadianZones().catch((err) => this.error('Periodic update failed:', err)),
+      RECALC_INTERVAL_MS,
+    );
   }
 
-
-  /**
-   * onUnInit is called when the driver is unintialized
-   */
   async onUninit(): Promise<void> {
-    
-    this.log("CircadianDriver is shutting down....");
+    await super.onUninit();
+    this.log('CircadianDriver is shutting down');
 
-    // Stop the timer
-    clearInterval(this._intervalId);
-
+    if (this._intervalId) {
+      this.homey.clearInterval(this._intervalId);
+      this._intervalId = null;
+    }
   }
 
-
-  /**
-   * onPairListDevices is called when a user is adding a device and the 'list_devices' view is called.
-   * This should return an array with the data of devices that are available for pairing.
-   */
   async onPairListDevices() {
     return [
       {
-        name: this.homey.__("circadian_zone"),
+        name: this.homey.__('circadian_zone'),
         data: {
           id: uuidv4(),
         },
@@ -64,89 +59,96 @@ export class CircadianDriver extends Homey.Driver {
     ];
   }
 
-
   /**
-   * _updateCircadianZones prompts individual zone devices to update based on the master percentage
-   * 
+   * Recalculate the master circadian percentage and propagate to every
+   * zone device.
+   *
+   * Awaits all zone updates with Promise.all rather than the previous
+   * fire-and-forget forEach(async) pattern, so:
+   *   1. errors in zone updates surface to the caller (and to setInterval's
+   *      .catch()) rather than disappearing into floating promise rejections;
+   *   2. the next setInterval tick can't run while the previous tick's
+   *      zone updates are still pending.
    */
-
   async _updateCircadianZones() {
-
-    this.log("Updating circadian zones with recalculated percentage...");
+    this.log('Updating circadian zones with recalculated percentage...');
     this._circadianPercentage = this._recalculateCircadianPercentage();
-    this.getDevices().forEach(async device => {
-      await (device as CircadianZone).updateFromPercentage(this._circadianPercentage);
-    });
 
+    const devices = this.getDevices();
+    await Promise.all(
+      devices.map((device) => (device as CircadianZone)
+        .updateFromPercentage(this._circadianPercentage as number)
+        .catch((err) => this.error(`Zone update for ${device.getName()} failed:`, err))),
+    );
   }
 
   /**
-   * _recalculateCircadianPercentage recalculates the sunrise and sunset curves, used for calculations in each device
-   * 
-   * Inspiration taken in no small part from @basnijholt's excellent Home Assistant adaptive lighting algorithm
+   * Recalculate the sunrise/sunset curve and return the current
+   * percentage progress through the day.
+   *
+   * Inspiration from @basnijholt's adaptive-lighting algorithm for HA:
    * https://github.com/basnijholt/adaptive-lighting
-   * 
-   * @returns {number} percentage progress through the day
-   * 
    */
   private _recalculateCircadianPercentage(): number {
+    this.log('Recalculating...');
 
-    // Debug
-    this.log("Recalculating...");
-
-    // Get location
-    const latitude: number = this.homey.geolocation.getLatitude();
-    const longitude: number = this.homey.geolocation.getLongitude();
+    const latitude = this.homey.geolocation.getLatitude();
+    const longitude = this.homey.geolocation.getLongitude();
     const now = new Date();
 
-    // Calculate times
-    let sunTools = new SunTools(now, latitude, longitude);
+    const sunTools = new SunTools(now, latitude, longitude);
     this.log(`SunTools: ${sunTools}`);
-    sunTools.keyEvents.forEach(event => {
-      this.log(`    ${event} Before: ${event.timestamp.getTime() < now.getTime()}`);
-    });
-    let nextEvent = sunTools.getNextEvent(now);
-    let lastEvent = sunTools.getLastEvent(now);
 
-    // Debug
-    this.log(`Now: ${now}`);
+    const nextEvent = sunTools.getNextEvent(now);
+    const lastEvent = sunTools.getLastEvent(now);
+    if (!nextEvent || !lastEvent) {
+      this.log('No bracketing sun events; defaulting to 0%');
+      return 0;
+    }
+
+    this.log(`Now: ${now.toISOString()}`);
     this.log(`Previously: ${lastEvent}`);
     this.log(`Next: ${nextEvent}`);
 
-    // Calculate the curves
+    // Curve construction:
+    //   - Between sunrise and noon (and between sunset and midnight) we're
+    //     climbing/descending; the next event is the inflection.
+    //   - Between noon and sunset (and between midnight and sunrise) we're
+    //     mirrored; the previous event is the inflection.
+    //   - k flips the curve sign based on whether we're heading toward a
+    //     "high" event (sunset/noon, k=1) or "low" event (midnight/sunrise, k=-1).
     let h: number;
-    let k: number;
     let x: number;
-    let y: number;
-
-    if ((nextEvent instanceof SunEventSunrise) || (nextEvent instanceof SunEventSunset)) {
-      h = lastEvent!.timestamp.getTime();
-      x = nextEvent!.timestamp.getTime();
+    if (nextEvent instanceof SunEventSunrise || nextEvent instanceof SunEventSunset) {
+      h = lastEvent.timestamp.getTime();
+      x = nextEvent.timestamp.getTime();
+    } else {
+      x = lastEvent.timestamp.getTime();
+      h = nextEvent.timestamp.getTime();
     }
-    else {
-      x = lastEvent!.timestamp.getTime();
-      h = nextEvent!.timestamp.getTime();
-    }
-    k = ((nextEvent instanceof SunEventSunset) || (nextEvent instanceof SunEventSolarNoon)) ? 1 : -1;
+    const k = (nextEvent instanceof SunEventSunset || nextEvent instanceof SunEventSolarNoon) ? 1 : -1;
 
-    let percentage = (0 - k) * ((now.getTime() - h) / (h - x)) ** 2 + k;
-    this.log(`Percentage: ${percentage}%`);
+    const percentage = (0 - k) * ((now.getTime() - h) / (h - x)) ** 2 + k;
+    this.log(`Percentage: ${percentage}`);
     return percentage;
-
   }
 
+  /**
+   * Returns the current circadian percentage, computing it if needed.
+   * Safe to call repeatedly; the result is cached and refreshed on the
+   * driver's interval.
+   */
   getPercentage(): number {
-    if (this._circadianPercentage == -1) {
+    if (this._circadianPercentage === null) {
       this._circadianPercentage = this._recalculateCircadianPercentage();
     }
     return this._circadianPercentage;
   }
 
-  // Handler for an open request
   triggerValuesChangedFlow(device: Homey.Device, tokens: any, state: any) {
     this._circadianValuesChangedFlow
       .trigger(device, tokens, state)
-      .catch(this.error)
+      .catch(this.error);
   }
 
 }
