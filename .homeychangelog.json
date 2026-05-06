@@ -10,5 +10,8 @@
   },
   "1.1.1": {
     "en": "Reliability fixes: corrected day-arithmetic bug at month boundaries, fixed sun-events ordering after repeated calls, properly awaits zone updates so errors aren't swallowed, removed first-call race in mode detection, switched to epsilon comparisons for capability values to avoid spurious updates from float drift."
+  },
+  "1.1.2": {
+    "en": "Internal cleanup and test coverage. No user-visible changes."
   }
 }
