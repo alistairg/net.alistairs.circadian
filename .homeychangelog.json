@@ -17,5 +17,9 @@
   "1.1.3": {
     "en": "German localisation for the full app, including the settings page, flow cards, and capability values. Vielen Dank to @DaBozzz for kicking it off.",
     "de": "Vollständige deutsche Lokalisierung für die App, einschließlich Einstellungen, Flow-Karten und Modi."
+  },
+  "1.1.5": {
+    "en": "Adds a German app store description.",
+    "de": "Fügt eine deutsche App-Store-Beschreibung hinzu."
   }
 }
